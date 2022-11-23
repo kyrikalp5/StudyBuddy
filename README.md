@@ -1,1 +1,1 @@
-# StudyBuddy
+# StudyBuddy application using Django
