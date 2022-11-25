@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse
 from .models import Room, Topic
 from .forms import RoomForm
@@ -12,9 +13,11 @@ from .forms import RoomForm
 
 def loginPage(request):
 
+    page = 'login'
+
     if request.user.is_authenticated:
         return redirect('home')
-        
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -31,11 +34,28 @@ def loginPage(request):
         else:
             messages.error(request, 'Username or Password are wrong.')
 
-    return render(request, 'base/login_register.html')
+    context = {'page': page}
+    return render(request, 'base/login_register.html', context)
 
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
+def registerPage(request):
+    form = UserCreationForm()
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid:
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Something went wrong.')
+
+
+    context = {'form':form}
+    return render(request, 'base/login_register.html',context)
 
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
@@ -56,15 +76,16 @@ def room(request, pk):
 
 @login_required(login_url='login')
 def createRoom(request):
+    user = request.user
     form = RoomForm()
-    
+
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('home')
     
-    context = {'form': form}
+    context = {'form': form, 'user': user}
     return render(request, 'base/room_form.html', context)
 
 @login_required(login_url='login')
