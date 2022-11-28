@@ -5,7 +5,7 @@
 <div>
     <form method="POST" action="">
         {% csrf_token %}
-        <h1>Are you sure you want to delete "{{room.name}}"?</h1>
+        <h1>Are you sure you want to delete "{{room.name}}" "{{room.id}}?</h1>
         <a href = "{% url 'home' %}">GoBack</a>
         <input type="submit" value="Delete" />
     </form>
